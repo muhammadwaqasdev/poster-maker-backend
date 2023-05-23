@@ -25,6 +25,13 @@ jobs:
         run: npm test
 
       - name: Deploy to DigitalOcean Spaces
-        uses: jakejarvis/digitalocean-spaces-sync@v1
+        uses: jakejarvis/s3-sync-action@master
         with:
-          args: --key ${{ secrets.DO_SPACES_KEY }} --secret ${{ secrets.DO_SPACES_SECRET }} --bucket posters-assets --local-dir . --region nyc3 --remote-dir https://github.com/muhammadwaqasdev/poster-maker-backend
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: posters-assets
+          AWS_ACCESS_KEY_ID: ${{ secrets.DO_SPACES_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DO_SPACES_SECRET }}
+        # uses: jakejarvis/digitalocean-spaces-sync@v1
+        # with:
+        #   args: --key ${{ secrets.DO_SPACES_KEY }} --secret ${{ secrets.DO_SPACES_SECRET }} --bucket posters-assets --local-dir . --region nyc3 --remote-dir https://github.com/muhammadwaqasdev/poster-maker-backend
