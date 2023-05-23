@@ -27,4 +27,4 @@ jobs:
       - name: Deploy to DigitalOcean Spaces
         uses: jakejarvis/digitalocean-spaces-sync@v1
         with:
-          args: --key ${{ secrets.DO_SPACES_KEY }} --secret ${{ secrets.DO_SPACES_SECRET }} --bucket your-bucket-name --local-dir . --region nyc3 --remote-dir /your/remote/directory
+          args: --key ${{ secrets.DO_SPACES_KEY }} --secret ${{ secrets.DO_SPACES_SECRET }} --bucket posters-assets --local-dir . --region nyc3 --remote-dir https://github.com/muhammadwaqasdev/poster-maker-backend
