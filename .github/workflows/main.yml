@@ -1,4 +1,4 @@
-name: poster_backend CI/CD
+name: poster-maker-backend CI/CD
 
 on:
   push:
@@ -18,6 +18,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: |
-          cd ~/actions-runner/poster_backend
+          cd ~/actions-runner/poster-maker-backend
           npm install
           pm2 restart index.js
