@@ -1,10 +1,12 @@
 name: poster-maker-backend CI/CD
 
+
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+
 
 jobs:
   build:
