@@ -11,7 +11,7 @@ const uploadRouter = require('./routes/upload');
 app.use("/api", uploadRouter);
 
 
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, function() {
     console.log("Server started at PORT: " + PORT);
 });
