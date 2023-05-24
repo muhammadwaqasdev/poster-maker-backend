@@ -26,5 +26,4 @@ jobs:
           cd ~/actions-runner/poster-maker/poster-maker-backend
           npm install
           npm run build --if-present
-      # - run: pm2 restart index.js --update-env
-      
+          pm2 restart index.js --update-env
