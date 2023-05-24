@@ -20,6 +20,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: |
-          cd ~/actions-runner/poster-maker-backend
+          cd ~/actions-runner/poster-maker
           npm install
           pm2 restart index.js
