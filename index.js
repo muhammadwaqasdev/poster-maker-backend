@@ -4,7 +4,7 @@ const app = express();
 
 
 app.get('/', function (req, res) {
-    res.json({message: "Welcome to Node.js Api Server with MogoDB Server(Mongoose)"});
+    res.json({message: "Welcome to Poster Maker and Design Maker! Api Server"});
 });
 
 const uploadRouter = require('./routes/upload');
