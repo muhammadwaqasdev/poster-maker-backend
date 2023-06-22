@@ -118,6 +118,56 @@ router.delete('/deleteStickers/:id', function (req, res) {
   });
 });
 
+router.post('/uploadShapes', upload.single('file'), function (req, res) {
+    const file = req.file;
+    const id = req.body.id;
+
+  if (!(file && id)) {
+    res.status(200).json({ status: 400, message: 'File and Id must be required' });
+    return;
+  }
+
+  const params = {
+    Bucket: 'posters-assets',
+    Key: "shapes/" + id + ".png",
+    Body: file.buffer,
+    ContentType: 'image/png', 
+    ACL: 'public-read',
+  };
+
+  s3.upload(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(200).json({ status: 500, message: 'Failed to upload Shapes: ' + file.originalname});
+    } else {
+      res.status(200).json({ status: 200, message: 'Shapes uploaded successfully', data: data.Location });
+    }
+  });
+});
+
+router.delete('/deleteShapes/:id', function (req, res) {
+  const id = req.params.id;
+
+  if (!id) {
+    res.status(200).json({ status: 400, message: 'Id must be required' });
+    return;
+  }
+
+  const params = {
+    Bucket: 'posters-assets',
+    Key: "shapes/" + id + ".png",
+  };
+
+  s3.deleteObject(params, (err) => {
+    if (err) {
+      console.error(err);
+      res.status(200).json({ status: 500, message: 'Failed to delete Shapes: ' + id });
+    } else {
+      res.status(200).json({ status: 200, message: 'Shapes deleted successfully' });
+    }
+  });
+});
+
 router.post('/uploadFonts', upload.single('file'), function (req, res) {
     const file = req.file;
     const id = req.body.id;
