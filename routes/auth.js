@@ -51,6 +51,7 @@ router.post("/signup", async function(req, res) {
 
 router.get("/getAll", middleware , async function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err, authData) => {
+        try{
         if(err) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
@@ -60,12 +61,16 @@ router.get("/getAll", middleware , async function(req, res) {
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
     });
 });
 
 router.patch("/update", middleware, function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
+        try{
         if(err) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
@@ -79,12 +84,16 @@ router.patch("/update", middleware, function(req, res) {
             );
             var uu = await User.find({_id: authData.user[0]._id},{__v:0, password:0}).exec();
             res.json({ status: true, message: "User Updated Successfully", statusCode: 200, data: uu[0]});
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
     });
 });
 
 router.patch("/upadatefav/:id", middleware, function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
+        try{
         if(err) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
@@ -104,12 +113,16 @@ router.patch("/upadatefav/:id", middleware, function(req, res) {
                 var uu = await User.find({_id: authData.user[0]._id},{ __v:0, password:0}).exec();
                 res.json({ status: true, message: "Added Successfully", statusCode: 200, data: uu[0]});
               }
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
     });
 });
 
 router.patch("/setToAdmin/:id", middleware, function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
+        try{
         if(err) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
@@ -140,12 +153,16 @@ router.patch("/setToAdmin/:id", middleware, function(req, res) {
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
     });
 });
 
 router.post("/delete", middleware, function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
+        try{
         if(err) {
             res.json({ message: err.message, statusCode: 403 });
         }else {
@@ -155,6 +172,9 @@ router.post("/delete", middleware, function(req, res) {
             }else{
                 res.json({ status: false, message: "User Not Found", statusCode: 400});
             }
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
     });
 });

@@ -25,9 +25,22 @@ app.use("/api/user", authRouter);
 //Poster Sizes Apis
 const posterSizeRouter = require('./routes/poster_size');
 app.use("/api/postersize", posterSizeRouter);
-//Poster Sizes Apis
+//Designs Apis
 const designRouter = require('./routes/designs');
 app.use("/api/design", designRouter);
+
+//Design Category Apis
+const designCatRouter = require('./routes/catogories/design_category');
+app.use("/api/designCat", designCatRouter);
+//Design Category Apis
+const backgroundCatRouter = require('./routes/catogories/backgrounds_category');
+app.use("/api/bgCat", backgroundCatRouter);
+//Shapes Category Apis
+const shapesCatRouter = require('./routes/catogories/shapes_category');
+app.use("/api/shapesCat", shapesCatRouter);
+//Stickers Category Apis
+const stickersCatRouter = require('./routes/catogories/stickers_category');
+app.use("/api/stickersCat", stickersCatRouter);
 
 //upload images to s3 bucket
 const uploadRouter = require('./routes/upload');

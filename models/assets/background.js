@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
-// const validator = require('validator');
-var AutoIncrement = require('mongoose-sequence')(mongoose);
 
-const assetSchema = mongoose.Schema({
+const backgroundSchema = mongoose.Schema({
     id: {
-        type: Number
+        type: Number,
+        required: true,
     },
     src: {
         type: String,
@@ -23,6 +22,5 @@ const assetSchema = mongoose.Schema({
         default: Date.now,
     },
 });
-userSchema.plugin(AutoIncrement, {id:'id',inc_field: 'id'});
 
-module.exports = mongoose.model("Asset", assetSchema);
+module.exports = mongoose.model("Backgrounds", backgroundSchema);

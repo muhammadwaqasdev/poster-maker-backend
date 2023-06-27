@@ -7,6 +7,7 @@ const middleware = require('../middleware/auth_middleware');
 
 router.post("/add", middleware , async function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
+        try{
         if(err) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
@@ -28,6 +29,9 @@ router.post("/add", middleware , async function(req, res) {
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
     });
 });
@@ -52,16 +56,21 @@ router.get("/getAll", async function(req, res) {
   });
 
 router.get("/get/:id", async function(req, res) {
+    try{
     var posterSize = await PosterSize.find({ _id: req.params.id },{ __v:0 });
     if(posterSize.length > 0){
         res.json({ status: true, message: "Success", statusCode: "200" , data: posterSize[0] });
     }else{
         res.json({ status: false, message: "PosterSize Not Available", statusCode: "404" });
+    }} catch (error) {
+        console.error(error);
+        res.status(200).json({ status: 500, message: error.message });
     }
 });
 
 router.patch("/update/:id", middleware, function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
+        try{
         if(err) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
@@ -80,12 +89,16 @@ router.patch("/update/:id", middleware, function(req, res) {
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
     });
 });
 
 router.post("/delete/:id", middleware, function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
+        try{
         if(err) {
             res.json({ message: err.message, statusCode: 403 });
         }else {
@@ -99,6 +112,9 @@ router.post("/delete/:id", middleware, function(req, res) {
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
     });
 });
