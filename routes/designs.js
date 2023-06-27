@@ -30,32 +30,38 @@ router.post("/add", middleware, async function(req, res) {
     });
 });
 
-router.get("/getMyAll", async function(req, res) {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-  
-    try {
-      const skip = (page - 1) * limit;
-      const design = await Design.find({}, { __v: 0 })
-        .skip(skip)
-        .limit(limit);
-      const totalCount = await Design.countDocuments();
-  
-      res.json({
-        status: true, message: "Success", statusCode: 200, data: design, length: design.length, page: page, totalPages: Math.ceil(totalCount / limit)
-      });
-    } catch (error) {
-      res.json({status: false, message: error.message, statusCode: 500});
-    }
+router.get("/getMyAll", middleware, async function(req, res) {
+    jwt.verify(req.token, process.env.secret, async (err,authData) => {
+        if(err) {
+            res.json({ status: false, message: err.message, statusCode: 403 });
+        }else {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 1000;
+        
+            try {
+            const skip = (page - 1) * limit;
+            const design = await Design.find({user_id: authData.user[0]._id}, { __v: 0 })
+                .skip(skip)
+                .limit(limit);
+            const totalCount = await Design.countDocuments();
+        
+            res.json({
+                status: true, message: "Success", statusCode: 200, data: design, length: design.length, page: page, totalPages: Math.ceil(totalCount / limit)
+            });
+            } catch (error) {
+            res.json({status: false, message: error.message, statusCode: 500});
+            }
+        }
+    });
 });
 
 router.get("/getAllAdmin", async function(req, res) {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-
+    const limit = parseInt(req.query.limit) || 1000;
+    
     try {
     const skip = (page - 1) * limit;
-    const design = await Design.find({}, { __v: 0 })
+    const design = await Design.find({user_id: "649aa1533702a370c18abd7f"}, { __v: 0 })
         .skip(skip)
         .limit(limit);
     const totalCount = await Design.countDocuments();
@@ -69,11 +75,11 @@ router.get("/getAllAdmin", async function(req, res) {
 });
 
 router.get("/get/:id", async function(req, res) {
-    var posterSize = await PosterSize.find({ _id: req.params.id },{ __v:0 });
-    if(posterSize.length > 0){
-        res.json({ status: true, message: "Success", statusCode: "200" , data: posterSize[0] });
+    var design = await Design.find({ _id: req.params.id },{ __v:0 });
+    if(design.length > 0){
+        res.json({ status: true, message: "Success", statusCode: "200" , data: design[0] });
     }else{
-        res.json({ status: false, message: "PosterSize Not Available", statusCode: "404" });
+        res.json({ status: false, message: "Design Not Available", statusCode: "404" });
     }
 });
 
@@ -83,17 +89,18 @@ router.patch("/update/:id", middleware, function(req, res) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
             if(authData.user[0].is_admin){
-                const updatedPosterSize = await PosterSize.findOneAndUpdate({_id: req.params.id},
+                const updatedDesign = await Design.findOneAndUpdate({_id: req.params.id},
                     {
+                        category_id: req.body.category_id,
+                        size_id: req.body.size_id,
                         name: req.body.name,
-                        aspectRatio: req.body.aspectRatio,
-                        height: req.body.height,
-                        width: req.body.width
+                        schema: req.body.schema,
+                        thumbnail: req.body.thumbnail
                     },
                     { new: true }
                 );
-                var uu = await PosterSize.find({_id: req.params.id},{ __v:0}).exec();
-                res.json({ status: true, message: "PosterSize Updated Successfully", statusCode: "200", data: uu[0]});
+                var uu = await Design.find({_id: req.params.id},{ __v:0}).exec();
+                res.json({ status: true, message: "Design Updated Successfully", statusCode: "200", data: uu[0]});
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
@@ -107,11 +114,11 @@ router.post("/delete/:id", middleware, function(req, res) {
             res.json({ message: err.message, statusCode: 403 });
         }else {
             if(authData.user[0].is_admin){
-                var posterSize = await PosterSize.deleteOne({_id: req.params.id});
-                if(posterSize.deletedCount === 1) {
-                    res.json({ status: true, message: "PosterSize deleted Successfully", statusCode: "200"});
+                var design = await Design.deleteOne({_id: req.params.id});
+                if(design.deletedCount === 1) {
+                    res.json({ status: true, message: "Design deleted Successfully", statusCode: "200"});
                 }else{
-                    res.json({ status: false, message: "PosterSize Not Found", statusCode: "400"});
+                    res.json({ status: false, message: "Design Not Found", statusCode: "400"});
                 }
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });

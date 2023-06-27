@@ -1,12 +1,6 @@
 const mongoose = require('mongoose');
-// const validator = require('validator');
-var AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const designSchema = mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-    },
     user_id: {
         type: String,
         required: true,
