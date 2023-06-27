@@ -9,7 +9,7 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-router.post("/add", middleware, upload.single('file'), async function(req, res) {
+router.post("/add", middleware, upload.single('icon'), async function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
         try{
         if(err) {
@@ -85,7 +85,7 @@ router.get("/get/:id", async function(req, res) {
     }
 });
 
-router.patch("/update/:id", middleware, upload.single('file'), function(req, res) {
+router.patch("/update/:id", middleware, upload.single('icon'), function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
         try{
         if(err) {
