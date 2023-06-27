@@ -4,18 +4,19 @@ var AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const designSchema = mongoose.Schema({
     id: {
-        type: Number
+        type: Number,
+        required: true,
     },
     user_id: {
-        type: Number,
+        type: String,
         required: true,
     },
     category_id: {
-        type: Number,
+        type: String,
         required: true,
     },
     size_id: {
-        type: Number,
+        type: String,
         required: true,
     },
     name: {
@@ -39,6 +40,5 @@ const designSchema = mongoose.Schema({
         default: Date.now,
     },
 });
-userSchema.plugin(AutoIncrement, {id:'id',inc_field: 'id'});
 
 module.exports = mongoose.model("Design", designSchema);

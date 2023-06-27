@@ -25,6 +25,9 @@ app.use("/api/user", authRouter);
 //Poster Sizes Apis
 const posterSizeRouter = require('./routes/poster_size');
 app.use("/api/postersize", posterSizeRouter);
+//Poster Sizes Apis
+const designRouter = require('./routes/designs');
+app.use("/api/design", designRouter);
 
 //upload images to s3 bucket
 const uploadRouter = require('./routes/upload');

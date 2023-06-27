@@ -2,54 +2,71 @@ const express = require('express');
 const router = express.Router();
 var jwt = require('jsonwebtoken');
 
-const PosterSize = require('../models/poster_sizes');
+const Design = require('../models/design');
 const middleware = require('../middleware/auth_middleware');
 
-router.post("/add", middleware , async function(req, res) {
+router.post("/add", middleware, async function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
         if(err) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
-            if(authData.user[0].is_admin){
-                var posterSize = await PosterSize.find({product_name: req.body.product_name});
-                if(posterSize.length > 0){
-                    res.json({ status: false, message: "Already Exist", statusCode: 404});
-                }else{
-                    const newPosterSize = new PosterSize({
-                        name: req.body.name,
-                        aspectRatio: req.body.aspectRatio,
-                        height: req.body.height,
-                        width: req.body.width
-                    });
-                    await newPosterSize.save();
-                    var addedPosterSize = await PosterSize.find({_id: newPosterSize._id}, {__v:0 });
-                    res.json({ status: true, message: "Poster Size Added Successfully", statusCode: 200 , data: addedPosterSize[0] });
-                }
+            var design = await Design.find({name: req.body.name});
+            if(design.length > 0){
+                res.json({ status: false, message: "Already Exist Please Reanme", statusCode: 404});
             }else{
-                res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
+                const newDesign = new Design({
+                    user_id: authData.user[0]._id,
+                    category_id: req.body.category_id,
+                    size_id: req.body.size_id,
+                    name: req.body.name,
+                    schema: req.body.schema,
+                    thumbnail: req.body.thumbnail
+                });
+                await newDesign.save();
+                var addedDesign = await Design.find({_id: newDesign._id}, {__v:0 });
+                res.json({ status: true, message: "Poster Size Added Successfully", statusCode: 200 , data: addedDesign[0] });
             }
         }
     });
 });
 
-router.get("/getAll", async function(req, res) {
+router.get("/getMyAll", async function(req, res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
   
     try {
       const skip = (page - 1) * limit;
-      const posterSize = await PosterSize.find({}, { __v: 0 })
+      const design = await Design.find({}, { __v: 0 })
         .skip(skip)
         .limit(limit);
-      const totalCount = await PosterSize.countDocuments();
+      const totalCount = await Design.countDocuments();
   
       res.json({
-        status: true, message: "Success", statusCode: 200, data: posterSize, length: posterSize.length, page: page, totalPages: Math.ceil(totalCount / limit)
+        status: true, message: "Success", statusCode: 200, data: design, length: design.length, page: page, totalPages: Math.ceil(totalCount / limit)
       });
     } catch (error) {
       res.json({status: false, message: error.message, statusCode: 500});
     }
-  });
+});
+
+router.get("/getAllAdmin", async function(req, res) {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    try {
+    const skip = (page - 1) * limit;
+    const design = await Design.find({}, { __v: 0 })
+        .skip(skip)
+        .limit(limit);
+    const totalCount = await Design.countDocuments();
+
+    res.json({
+        status: true, message: "Success", statusCode: 200, data: design, length: design.length, page: page, totalPages: Math.ceil(totalCount / limit)
+    });
+    } catch (error) {
+    res.json({status: false, message: error.message, statusCode: 500});
+    }
+});
 
 router.get("/get/:id", async function(req, res) {
     var posterSize = await PosterSize.find({ _id: req.params.id },{ __v:0 });
