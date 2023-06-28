@@ -32,7 +32,7 @@ router.post("/add", middleware, upload.single('icon'), async function(req, res) 
                         const data = await s3.upload(params).promise();
                         const newBackgroundCategory = new BackgroundCategory({
                           name: req.body.name,
-                          icon: data.Location,
+                          icon: new URL(data.Location).pathname,
                         });
                         await newBackgroundCategory.save();
                         var addedBackgroundCategory = await BackgroundCategory.find({ _id: newBackgroundCategory._id }, { __v: 0 });
@@ -104,7 +104,7 @@ router.patch("/update/:id", middleware, upload.single('icon'), function(req, res
                     const updatedBackgroundCategory = await BackgroundCategory.findOneAndUpdate({_id: req.params.id},
                         {
                             name: req.body.name,
-                            icon: data.Location,
+                            icon: new URL(data.Location).pathname,
                         },
                         { new: true }
                     );

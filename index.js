@@ -29,10 +29,11 @@ app.use("/api/postersize", posterSizeRouter);
 const designRouter = require('./routes/designs');
 app.use("/api/design", designRouter);
 
+
 //Design Category Apis
 const designCatRouter = require('./routes/catogories/design_category');
 app.use("/api/designCat", designCatRouter);
-//Design Category Apis
+//Background Category Apis
 const backgroundCatRouter = require('./routes/catogories/backgrounds_category');
 app.use("/api/bgCat", backgroundCatRouter);
 //Shapes Category Apis
@@ -42,10 +43,27 @@ app.use("/api/shapesCat", shapesCatRouter);
 const stickersCatRouter = require('./routes/catogories/stickers_category');
 app.use("/api/stickersCat", stickersCatRouter);
 
+
+//Background Assets Apis
+const backgroundRouter = require('./routes/assets/background');
+app.use("/api/bd", backgroundRouter);
+//Shape Assets Apis
+const shapeRouter = require('./routes/assets/shape');
+app.use("/api/shape", shapeRouter);
+//Sticker Assets Apis
+const stickerRouter = require('./routes/assets/sticker');
+app.use("/api/sticker", stickerRouter);
+//Font Assets Apis
+const fontRouter = require('./routes/assets/font');
+app.use("/api/font", fontRouter);
+//Font Assets Apis
+const fancyFontRouter = require('./routes/assets/fancy_font');
+app.use("/api/fancyFont", fancyFontRouter);
+
+
 //upload images to s3 bucket
 const uploadRouter = require('./routes/upload');
 app.use("/api", uploadRouter);
-
 
 
 const PORT = process.env.PORT || 4000;

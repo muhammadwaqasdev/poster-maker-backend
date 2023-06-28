@@ -3,40 +3,49 @@ const router = express.Router();
 var jwt = require('jsonwebtoken');
 const s3 = require('../../s3');
 
-const DesignCategory = require('../../models/catogories/design_category');
+const Background = require('../../models/assets/background');
 const middleware = require('../../middleware/auth_middleware');
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-router.post("/add", middleware, upload.single('icon'), async function(req, res) {
+router.post("/add", middleware, upload.single('image'), async function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
         try{
         if(err) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
             if(authData.user[0].is_admin){
-                var designCategory = await DesignCategory.find({name: req.body.name});
-                if(designCategory.length > 0){
+                const total = await Background.countDocuments();
+                if(total > 0){
+                    const lastDocument = await Background.findOne({}, {}, { sort: { id: -1 } });
+                    var newId = lastDocument.id;
+                }else{
+                    var newId = 0;
+                }
+                newId++;
+                var background = await Background.find({id: newId});
+                if(background.length > 0){
                     res.json({ status: false, message: "Already Exist", statusCode: 404});
                 }else{
                     const params = {
                         Bucket: 'posters-assets',
-                        Key: "category/design/" + req.body.name + ".png",
+                        Key: "assets/background/" + newId + ".png",
                         Body: req.file.buffer,
                         ContentType: 'image/png', 
                         ACL: 'public-read',
                     };
-                    
                     try {
                         const data = await s3.upload(params).promise();
-                        const newDesignCategory = new DesignCategory({
-                          name: req.body.name,
-                          icon: new URL(data.Location).pathname,
+                        const newBackground = new Background({
+                          id: newId,
+                          title: req.file.originalname.substring(0, req.file.originalname.lastIndexOf('.')),
+                          category_id: req.body.category_id,
+                          src: new URL(data.Location).pathname,
                         });
-                        await newDesignCategory.save();
-                        var addedDesignCategory = await DesignCategory.find({ _id: newDesignCategory._id }, { __v: 0 });
-                        res.json({ status: true, message: 'Design Category Added Successfully', statusCode: 200, data: addedDesignCategory[0] });
+                        await newBackground.save();
+                        var addedBackground = await Background.find({ _id: newBackground._id }, { _id:0, __v: 0 });
+                        res.json({ status: true, message: 'Background Added Successfully', statusCode: 200, data: addedBackground[0] });
                     } catch (error) {
                         console.error(error);
                         res.status(500).json({ status: 500, message: 'An error occurred during background upload.' });
@@ -45,11 +54,10 @@ router.post("/add", middleware, upload.single('icon'), async function(req, res) 
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
+        }} catch (error) {
+            console.error(error);
+            res.status(200).json({ status: 500, message: error.message });
         }
-    } catch (error) {
-        console.error(error);
-        res.status(200).json({ status: 500, message: error.message });
-    }
     });
 });
 
@@ -59,13 +67,13 @@ router.get("/getAll", async function(req, res) {
   
     try {
       const skip = (page - 1) * limit;
-      const designCategory = await DesignCategory.find({}, { __v: 0 })
+      const background = await Background.find({}, { _id:0,__v: 0 })
         .skip(skip)
         .limit(limit);
-      const totalCount = await DesignCategory.countDocuments();
+      const totalCount = await Background.countDocuments();
   
       res.json({
-        status: true, message: "Success", statusCode: 200, data: designCategory, length: designCategory.length, page: page, totalPages: Math.ceil(totalCount / limit)
+        status: true, message: "Success", statusCode: 200, data: background, length: background.length, page: page, totalPages: Math.ceil(totalCount / limit)
       });
     } catch (error) {
       res.json({status: false, message: error.message, statusCode: 500});
@@ -74,18 +82,18 @@ router.get("/getAll", async function(req, res) {
 
 router.get("/get/:id", async function(req, res) {
     try{
-    var designCategory = await DesignCategory.find({ _id: req.params.id },{ __v:0 });
-    if(designCategory.length > 0){
-        res.json({ status: true, message: "Success", statusCode: "200" , data: designCategory[0] });
+    var background = await Background.find({ id: req.params.id },{ _id:0, __v:0 });
+    if(background.length > 0){
+        res.json({ status: true, message: "Success", statusCode: "200" , data: background[0] });
     }else{
-        res.json({ status: false, message: "designCategory Not Available", statusCode: "404" });
+        res.json({ status: false, message: "background Not Available", statusCode: "404" });
     }} catch (error) {
         console.error(error);
         res.status(200).json({ status: 500, message: error.message });
     }
 });
 
-router.patch("/update/:id", middleware, upload.single('icon'), function(req, res) {
+router.patch("/update/:id", middleware, upload.single('image'), function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
         try{
         if(err) {
@@ -94,7 +102,7 @@ router.patch("/update/:id", middleware, upload.single('icon'), function(req, res
             if(authData.user[0].is_admin){
                 const params = {
                     Bucket: 'posters-assets',
-                    Key: "category/design/" + req.body.name + ".png",
+                    Key: "assets/background/" + req.params.id + ".png",
                     Body: req.file.buffer,
                     ContentType: 'image/png', 
                     ACL: 'public-read',
@@ -102,15 +110,16 @@ router.patch("/update/:id", middleware, upload.single('icon'), function(req, res
                 
                 try {
                     const data = await s3.upload(params).promise();
-                    const updatedDesignCategory = await DesignCategory.findOneAndUpdate({_id: req.params.id},
+                    const updatedBackground = await Background.findOneAndUpdate({id: req.params.id},
                         {
-                            name: req.body.name,
-                            icon: new URL(data.Location).pathname,
+                            category_id: req.body.category_id,
+                            title: req.file.originalname.substring(0, req.file.originalname.lastIndexOf('.')),
+                            src: new URL(data.Location).pathname,
                         },
                         { new: true }
                     );
-                    var uu = await DesignCategory.find({_id: req.params.id},{ __v:0}).exec();
-                    res.json({ status: true, message: "Design Category Updated Successfully", statusCode: "200", data: uu[0]});
+                    var uu = await Background.find({id: req.params.id},{ _id:0,__v:0}).exec();
+                    res.json({ status: true, message: "Background Updated Successfully", statusCode: "200", data: uu[0]});
                 } catch (error) {
                     console.error(error);
                     res.status(500).json({ status: 500, message: 'An error occurred during background upload.' });
@@ -132,11 +141,11 @@ router.post("/delete/:id", middleware, function(req, res) {
             res.json({ message: err.message, statusCode: 403 });
         }else {
             if(authData.user[0].is_admin){
-                var designCategory = await DesignCategory.deleteOne({_id: req.params.id});
-                if(designCategory.deletedCount === 1) {
-                    res.json({ status: true, message: "Design Category deleted Successfully", statusCode: "200"});
+                var background = await Background.deleteOne({id: req.params.id});
+                if(background.deletedCount === 1) {
+                    res.json({ status: true, message: "Background deleted Successfully", statusCode: "200"});
                 }else{
-                    res.json({ status: false, message: "Design Category Not Found", statusCode: "400"});
+                    res.json({ status: false, message: "Background Not Found", statusCode: "400"});
                 }
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });

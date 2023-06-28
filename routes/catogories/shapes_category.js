@@ -31,7 +31,7 @@ router.post("/add", middleware, upload.single('icon'), async function(req, res) 
                         const data = await s3.upload(params).promise();
                         const newShapesCategory = new ShapesCategory({
                           name: req.body.name,
-                          icon: data.Location,
+                          icon: new URL(data.Location).pathname,
                         });
                         await newShapesCategory.save();
                         var addedShapesCategory = await ShapesCategory.find({ _id: newShapesCategory._id }, { __v: 0 });
@@ -99,7 +99,7 @@ router.patch("/update/:id", middleware, upload.single('icon'), function(req, res
                     const updatedShapesCategory = await ShapesCategory.findOneAndUpdate({_id: req.params.id},
                         {
                             name: req.body.name,
-                            icon: data.Location,
+                            icon: new URL(data.Location).pathname,
                         },
                         { new: true }
                     );

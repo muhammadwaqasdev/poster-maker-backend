@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const backgroundSchema = mongoose.Schema({
+const shapeSchema = mongoose.Schema({
     id: {
         type: Number,
         required: true,
@@ -27,4 +27,4 @@ const backgroundSchema = mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model("Backgrounds", backgroundSchema);
+module.exports = mongoose.model("Shape", shapeSchema);

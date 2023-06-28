@@ -31,7 +31,7 @@ router.post("/add", middleware, upload.single('icon'), async function(req, res) 
                         const data = await s3.upload(params).promise();
                         const newStickersCategory = new StickersCategory({
                           name: req.body.name,
-                          icon: data.Location,
+                          icon: new URL(data.Location).pathname,
                         });
                         await newStickersCategory.save();
                         var addedStickersCategory = await StickersCategory.find({ _id: newStickersCategory._id }, { __v: 0 });
@@ -99,7 +99,7 @@ router.patch("/update/:id", middleware, upload.single('icon'), function(req, res
                     const updatedStickersCategory = await StickersCategory.findOneAndUpdate({_id: req.params.id},
                         {
                             name: req.body.name,
-                            icon: data.Location,
+                            icon: new URL(data.Location).pathname,
                         },
                         { new: true }
                     );
