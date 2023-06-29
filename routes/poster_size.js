@@ -12,7 +12,7 @@ router.post("/add", middleware , async function(req, res) {
             res.json({ status: false, message: err.message, statusCode: 403 });
         }else {
             if(authData.user[0].is_admin){
-                var posterSize = await PosterSize.find({product_name: req.body.product_name});
+                var posterSize = await PosterSize.find({name: req.body.name});
                 if(posterSize.length > 0){
                     res.json({ status: false, message: "Already Exist", statusCode: 404});
                 }else{
