@@ -7,7 +7,10 @@ const Sticker = require('../../models/assets/sticker');
 const middleware = require('../../middleware/auth_middleware');
 const multer = require('multer');
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ 
+    storage,
+    limits: { fieldSize: 2 * 1024 * 1024 }
+});
 
 router.post("/add", middleware, upload.single('image'), async function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
