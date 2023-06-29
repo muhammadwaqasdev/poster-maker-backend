@@ -63,7 +63,7 @@ router.get("/getAll", middleware , async function(req, res) {
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -86,7 +86,7 @@ router.patch("/update", middleware, function(req, res) {
             res.json({ status: true, message: "User Updated Successfully", statusCode: 200, data: uu[0]});
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -115,7 +115,7 @@ router.patch("/upadatefav/:id", middleware, function(req, res) {
               }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -155,7 +155,7 @@ router.patch("/setToAdmin/:id", middleware, function(req, res) {
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -174,7 +174,7 @@ router.post("/delete", middleware, function(req, res) {
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });

@@ -38,7 +38,7 @@ router.post("/add", middleware , async function(req, res) {
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -66,12 +66,12 @@ router.get("/get/:id", async function(req, res) {
     try{
     var font = await Font.find({ id: req.params.id },{ _id:0,__v:0 });
     if(font.length > 0){
-        res.json({ status: true, message: "Success", statusCode: "200" , data: font[0] });
+        res.json({ status: true, message: "Success", statusCode: 200 , data: font[0] });
     }else{
-        res.json({ status: false, message: "Font Not Available", statusCode: "404" });
+        res.json({ status: false, message: "Font Not Available", statusCode: 404 });
     }} catch (error) {
         console.error(error);
-        res.status(200).json({ status: 500, message: error.message });
+        res.status(200).json({ status: false,statusCode: 500, message: error.message });
     }
 });
 
@@ -90,13 +90,13 @@ router.patch("/update/:id", middleware, function(req, res) {
                     { new: true }
                 );
                 var uu = await Font.find({id: req.params.id},{ _id:0, __v:0}).exec();
-                res.json({ status: true, message: "Font Updated Successfully", statusCode: "200", data: uu[0]});
+                res.json({ status: true, message: "Font Updated Successfully", statusCode: 200, data: uu[0]});
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -110,16 +110,16 @@ router.post("/delete/:id", middleware, function(req, res) {
             if(authData.user[0].is_admin){
                 var font = await Font.deleteOne({id: req.params.id});
                 if(font.deletedCount === 1) {
-                    res.json({ status: true, message: "Font deleted Successfully", statusCode: "200"});
+                    res.json({ status: true, message: "Font deleted Successfully", statusCode: 200});
                 }else{
-                    res.json({ status: false, message: "Font Not Found", statusCode: "400"});
+                    res.json({ status: false, message: "Font Not Found", statusCode: 400});
                 }
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });

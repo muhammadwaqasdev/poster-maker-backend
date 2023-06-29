@@ -46,7 +46,7 @@ router.post("/add", middleware, upload.single('icon'), async function(req, res) 
         }
     } catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -74,12 +74,12 @@ router.get("/get/:id", async function(req, res) {
     try{
     var stickersCategory = await StickersCategory.find({ _id: req.params.id },{ __v:0 });
     if(stickersCategory.length > 0){
-        res.json({ status: true, message: "Success", statusCode: "200" , data: stickersCategory[0] });
+        res.json({ status: true, message: "Success", statusCode: 200 , data: stickersCategory[0] });
     }else{
-        res.json({ status: false, message: "stickersCategory Not Available", statusCode: "404" });
+        res.json({ status: false, message: "stickersCategory Not Available", statusCode: 404 });
     }} catch (error) {
         console.error(error);
-        res.status(200).json({ status: 500, message: error.message });
+        res.status(200).json({ status: false,statusCode: 500, message: error.message });
     }
 });
 
@@ -107,14 +107,14 @@ router.patch("/update/:id", middleware, upload.single('icon'), function(req, res
                         { new: true }
                     );
                     var uu = await StickersCategory.find({_id: req.params.id},{ __v:0}).exec();
-                    res.json({ status: true, message: "Stickers Category Updated Successfully", statusCode: "200", data: uu[0]});
+                    res.json({ status: true, message: "Stickers Category Updated Successfully", statusCode: 200, data: uu[0]});
                 
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -128,16 +128,16 @@ router.post("/delete/:id", middleware, function(req, res) {
             if(authData.user[0].is_admin){
                 var stickersCategory = await StickersCategory.deleteOne({_id: req.params.id});
                 if(stickersCategory.deletedCount === 1) {
-                    res.json({ status: true, message: "Stickers Category deleted Successfully", statusCode: "200"});
+                    res.json({ status: true, message: "Stickers Category deleted Successfully", statusCode: 200});
                 }else{
-                    res.json({ status: false, message: "Stickers Category Not Found", statusCode: "400"});
+                    res.json({ status: false, message: "Stickers Category Not Found", statusCode: 400});
                 }
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });

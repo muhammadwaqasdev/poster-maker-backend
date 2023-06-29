@@ -38,7 +38,7 @@ router.post('/uploadBackgrounds', upload.single('file'), function (req, res) {
   s3.upload(params, (err, data) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to upload background: ' + file.originalname});
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to upload background: ' + file.originalname});
     } else {
       res.status(200).json({ status: 200, message: 'Background uploaded successfully', data: data.Location });
     }
@@ -61,7 +61,7 @@ router.delete('/deleteBackground/:id', function (req, res) {
   s3.deleteObject(params, (err) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to delete background: ' + id });
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to delete background: ' + id });
     } else {
       res.status(200).json({ status: 200, message: 'Background deleted successfully' });
     }
@@ -88,7 +88,7 @@ router.post('/uploadStickers', upload.single('file'), function (req, res) {
   s3.upload(params, (err, data) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to upload Sticker: ' + file.originalname});
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to upload Sticker: ' + file.originalname});
     } else {
       res.status(200).json({ status: 200, message: 'Sticker uploaded successfully', data: data.Location });
     }
@@ -111,7 +111,7 @@ router.delete('/deleteStickers/:id', function (req, res) {
   s3.deleteObject(params, (err) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to delete stickers: ' + id });
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to delete stickers: ' + id });
     } else {
       res.status(200).json({ status: 200, message: 'Stickers deleted successfully' });
     }
@@ -138,7 +138,7 @@ router.post('/uploadShapes', upload.single('file'), function (req, res) {
   s3.upload(params, (err, data) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to upload Shapes: ' + file.originalname});
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to upload Shapes: ' + file.originalname});
     } else {
       res.status(200).json({ status: 200, message: 'Shapes uploaded successfully', data: data.Location });
     }
@@ -161,7 +161,7 @@ router.delete('/deleteShapes/:id', function (req, res) {
   s3.deleteObject(params, (err) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to delete Shapes: ' + id });
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to delete Shapes: ' + id });
     } else {
       res.status(200).json({ status: 200, message: 'Shapes deleted successfully' });
     }
@@ -188,7 +188,7 @@ router.post('/uploadFonts', upload.single('file'), function (req, res) {
   s3.upload(params, (err, data) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to upload Font: ' + file.originalname});
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to upload Font: ' + file.originalname});
     } else {
       res.status(200).json({ status: 200, message: 'Font uploaded successfully', data: data.Location });
     }
@@ -211,7 +211,7 @@ router.delete('/deleteFonts/:id', function (req, res) {
   s3.deleteObject(params, (err) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to delete fonts: ' + id });
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to delete fonts: ' + id });
     } else {
       res.status(200).json({ status: 200, message: 'Fonts deleted successfully' });
     }
@@ -238,7 +238,7 @@ router.post('/uploadCatIcon', upload.single('file'), function (req, res) {
   s3.upload(params, (err, data) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to upload Category Icon: ' + file.originalname});
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to upload Category Icon: ' + file.originalname});
     } else {
       res.status(200).json({ status: 200, message: 'Category Icon uploaded successfully', data: data.Location });
     }
@@ -261,7 +261,7 @@ router.delete('/deleteCatIcon/:id', function (req, res) {
   s3.deleteObject(params, (err) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to delete Category Icon: ' + id });
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to delete Category Icon: ' + id });
     } else {
       res.status(200).json({ status: 200, message: 'Category Icon deleted successfully' });
     }
@@ -289,7 +289,7 @@ router.post('/uploadPhotoByUser', upload.single('file'), function (req, res) {
   s3.upload(params, (err, data) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to upload Photo By User: ' + file.originalname});
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to upload Photo By User: ' + file.originalname});
     } else {
       res.status(200).json({ status: 200, message: 'Photo By User uploaded successfully', data: data.Location });
     }
@@ -313,7 +313,7 @@ router.delete('/deleteCatIcon/:id', function (req, res) {
   s3.deleteObject(params, (err) => {
     if (err) {
       console.error(err);
-      res.status(200).json({ status: 500, message: 'Failed to delete Photo By User: ' + id });
+      res.status(200).json({ status: false,statusCode: 500, message: 'Failed to delete Photo By User: ' + id });
     } else {
       res.status(200).json({ status: 200, message: 'Photo By User deleted successfully' });
     }

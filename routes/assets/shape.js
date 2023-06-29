@@ -51,7 +51,7 @@ router.post("/add", middleware, upload.single('image'), async function(req, res)
                         res.json({ status: true, message: 'Shape Added Successfully', statusCode: 200, data: addedShape[0] });
                     } catch (error) {
                         console.error(error);
-                        res.status(500).json({ status: 500, message: 'An error occurred during shape upload.' });
+                        res.status(500).json({ status: false,statusCode: 500, message: 'An error occurred during shape upload.' });
                     }
                 }
             }else{
@@ -59,7 +59,7 @@ router.post("/add", middleware, upload.single('image'), async function(req, res)
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -87,12 +87,12 @@ router.get("/get/:id", async function(req, res) {
     try{
     var shape = await Shape.find({ id: req.params.id },{ _id:0, __v:0 });
     if(shape.length > 0){
-        res.json({ status: true, message: "Success", statusCode: "200" , data: shape[0] });
+        res.json({ status: true, message: "Success", statusCode: 200 , data: shape[0] });
     }else{
-        res.json({ status: false, message: "shape Not Available", statusCode: "404" });
+        res.json({ status: false, message: "shape Not Available", statusCode: 404 });
     }} catch (error) {
         console.error(error);
-        res.status(200).json({ status: 500, message: error.message });
+        res.status(200).json({ status: false,statusCode: 500, message: error.message });
     }
 });
 
@@ -122,17 +122,17 @@ router.patch("/update/:id", middleware, upload.single('image'), function(req, re
                         { new: true }
                     );
                     var uu = await Shape.find({id: req.params.id},{ _id:0,__v:0}).exec();
-                    res.json({ status: true, message: "Shape Updated Successfully", statusCode: "200", data: uu[0]});
+                    res.json({ status: true, message: "Shape Updated Successfully", statusCode: 200, data: uu[0]});
                 } catch (error) {
                     console.error(error);
-                    res.status(500).json({ status: 500, message: 'An error occurred during shape upload.' });
+                    res.status(500).json({ status: false,statusCode: 500, message: 'An error occurred during shape upload.' });
                 }
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
@@ -146,16 +146,16 @@ router.post("/delete/:id", middleware, function(req, res) {
             if(authData.user[0].is_admin){
                 var shape = await Shape.deleteOne({id: req.params.id});
                 if(shape.deletedCount === 1) {
-                    res.json({ status: true, message: "Shape deleted Successfully", statusCode: "200"});
+                    res.json({ status: true, message: "Shape deleted Successfully", statusCode: 200});
                 }else{
-                    res.json({ status: false, message: "Shape Not Found", statusCode: "400"});
+                    res.json({ status: false, message: "Shape Not Found", statusCode: 400});
                 }
             }else{
                 res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
         }} catch (error) {
             console.error(error);
-            res.status(200).json({ status: 500, message: error.message });
+            res.status(200).json({ status: false,statusCode: 500, message: error.message });
         }
     });
 });
