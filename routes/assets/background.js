@@ -12,54 +12,63 @@ const upload = multer({
     limits: { fieldSize: 2 * 1024 * 1024 }
 });
 
-router.post("/add", middleware, upload.single('image'), async function(req, res) {
-    jwt.verify(req.token, process.env.secret, async (err,authData) => {
-        try{
-        if(err) {
-            res.json({ status: false, message: err.message, statusCode: 403 });
-        }else {
-            if(authData.user[0].is_admin){
-                const total = await Background.countDocuments();
-                if(total > 0){
-                    const lastDocument = await Background.findOne({}, {}, { sort: { id: -1 } });
-                    var newId = lastDocument.id;
-                }else{
-                    var newId = 0;
-                }
-                newId++;
-                var background = await Background.find({id: newId});
-                if(background.length > 0){
-                    res.json({ status: false, message: "Already Exist", statusCode: 404});
-                }else{
-                    const params = {
-                        Bucket: 'posters-assets',
-                        Key: "assets/background/" + newId + ".png",
-                        Body: req.file.buffer,
-                        ContentType: 'image/png', 
-                        ACL: 'public-read',
-                    };
-                    try {
-                        const data = await s3.upload(params).promise();
-                        const newBackground = new Background({
-                          id: newId,
-                          title: req.file.originalname.substring(0, req.file.originalname.lastIndexOf('.')),
-                          category_id: req.body.category_id,
-                          src: new URL(data.Location).pathname,
-                        });
-                        await newBackground.save();
-                        var addedBackground = await Background.find({ _id: newBackground._id }, { _id:0, __v: 0 });
-                        res.json({ status: true,statusCode: 200, message: 'Background Added Successfully',  data: addedBackground[0] });
-                    } catch (error) {
-                        console.error(error);
-                        res.status(500).json({ status: false,statusCode: 500, message: 'An error occurred during background upload.' });
+router.post("/add", middleware, upload.array('images'), async function(req, res) {
+    jwt.verify(req.token, process.env.secret, async (err, authData) => {
+        try {
+            if (err) {
+                res.json({ status: false, message: err.message, statusCode: 403 });
+            } else {
+                if (authData.user[0].is_admin) {
+                    const total = await Background.countDocuments();
+                    if (total > 0) {
+                        const lastDocument = await Background.findOne({}, {}, { sort: { id: -1 } });
+                        var newId = lastDocument.id;
+                    } else {
+                        var newId = 0;
                     }
+                    newId++;
+
+                    // Process each uploaded file
+                    const uploadedFiles = [];
+                    for (const file of req.files) {
+                        var background = await Background.find({ id: newId });
+                        if (background.length > 0) {
+                            res.json({ status: false, message: "Already Exist", statusCode: 404 });
+                            return; // Exit the loop and the function
+                        }
+                        const params = {
+                            Bucket: 'posters-assets',
+                            Key: "assets/background/" + newId + ".png",
+                            Body: file.buffer,
+                            ContentType: file.mimetype,
+                            ACL: 'public-read',
+                        };
+                        try {
+                            const data = await s3.upload(params).promise();
+                            const newBackground = new Background({
+                                id: newId,
+                                title: file.originalname.substring(0, file.originalname.lastIndexOf('.')),
+                                category_id: req.body.category_id,
+                                src: new URL(data.Location).pathname,
+                            });
+                            await newBackground.save();
+                            var addedBackground = await Background.find({ _id: newBackground._id }, { _id: 0, __v: 0 });
+                            uploadedFiles.push(addedBackground[0]);
+                            newId++;
+                        } catch (error) {
+                            console.error(error);
+                            res.status(500).json({ status: false, statusCode: 500, message: 'An error occurred during background upload.' });
+                            return; // Exit the loop and the function
+                        }
+                    }
+                    res.json({ status: true, statusCode: 200, message: 'Backgrounds Added Successfully', data: uploadedFiles });
+                } else {
+                    res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
                 }
-            }else{
-                res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
-        }} catch (error) {
+        } catch (error) {
             console.error(error);
-            res.status(200).json({ status: false,statusCode: 500, message: error.message });
+            res.status(200).json({ status: false, statusCode: 500, message: error.message });
         }
     });
 });

@@ -5,40 +5,50 @@ var jwt = require('jsonwebtoken');
 const FancyFont = require('../../models/assets/fancy_font');
 const middleware = require('../../middleware/auth_middleware');
 
-router.post("/add", middleware , async function(req, res) {
-    jwt.verify(req.token, process.env.secret, async (err,authData) => {
-        try{
-        if(err) {
-            res.json({ status: false, message: err.message, statusCode: 403 });
-        }else {
-            if(authData.user[0].is_admin){
-                const total = await FancyFont.countDocuments();
-                if(total > 0){
-                    const lastDocument = await FancyFont.findOne({}, {}, { sort: { id: -1 } });
-                    var newId = lastDocument.id;
-                }else{
-                    var newId = 0;
+router.post("/add", middleware, async function(req, res) {
+    jwt.verify(req.token, process.env.secret, async (err, authData) => {
+        try {
+            if (err) {
+                res.json({ status: false, message: err.message, statusCode: 403 });
+            } else {
+                if (authData.user[0].is_admin) {
+                    const fancyFontsToAdd = req.body.fancyFonts; // Assuming the request body contains an array of fancy fonts to add
+                    const addedFancyFonts = [];
+
+                    for (const fancyFontData of fancyFontsToAdd) {
+                        const total = await FancyFont.countDocuments();
+                        if (total > 0) {
+                            const lastDocument = await FancyFont.findOne({}, {}, { sort: { id: -1 } });
+                            var newId = lastDocument.id;
+                        } else {
+                            var newId = 0;
+                        }
+                        newId++;
+
+                        var fancyFont = await FancyFont.find({ id: newId });
+                        if (fancyFont.length > 0) {
+                            res.json({ status: false, message: "Already Exist", statusCode: 404 });
+                            return; // Exit the loop and the function
+                        }
+
+                        const newFancyFont = new FancyFont({
+                            id: newId,
+                            title: fancyFontData.title,
+                            src: fancyFontData.src,
+                        });
+                        await newFancyFont.save();
+                        var addedFancyFont = await FancyFont.find({ _id: newFancyFont._id }, { _id: 0, __v: 0 });
+                        addedFancyFonts.push(addedFancyFont[0]);
+                    }
+
+                    res.json({ status: true, message: "Fancy Fonts Added Successfully", statusCode: 200, data: addedFancyFonts });
+                } else {
+                    res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
                 }
-                newId++;
-                var fancyFont = await FancyFont.find({id: newId});
-                if(fancyFont.length > 0){
-                    res.json({ status: false, message: "Already Exist", statusCode: 404});
-                }else{
-                    const newFancyFont = new FancyFont({
-                        id: newId,
-                        title: req.body.title,
-                        src: req.body.src,
-                    });
-                    await newFancyFont.save();
-                    var addedFancyFont = await FancyFont.find({_id: newFancyFont._id}, { _id:0, __v:0 });
-                    res.json({ status: true, message: "FancyFont Added Successfully", statusCode: 200 , data: addedFancyFont[0] });
-                }
-            }else{
-                res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
-        }} catch (error) {
+        } catch (error) {
             console.error(error);
-            res.status(200).json({ status: false,statusCode: 500, message: error.message });
+            res.status(200).json({ status: false, statusCode: 500, message: error.message });
         }
     });
 });

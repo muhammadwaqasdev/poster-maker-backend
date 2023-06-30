@@ -12,54 +12,63 @@ const upload = multer({
     limits: { fieldSize: 2 * 1024 * 1024 }
 });
 
-router.post("/add", middleware, upload.single('image'), async function(req, res) {
-    jwt.verify(req.token, process.env.secret, async (err,authData) => {
-        try{
-        if(err) {
-            res.json({ status: false, message: err.message, statusCode: 403 });
-        }else {
-            if(authData.user[0].is_admin){
-                const total = await Shape.countDocuments();
-                if(total > 0){
-                    const lastDocument = await Shape.findOne({}, {}, { sort: { id: -1 } });
-                    var newId = lastDocument.id;
-                }else{
-                    var newId = 0;
-                }
-                newId++;
-                var shape = await Shape.find({id: newId});
-                if(shape.length > 0){
-                    res.json({ status: false, message: "Already Exist", statusCode: 404});
-                }else{
-                    const params = {
-                        Bucket: 'posters-assets',
-                        Key: "assets/shapes/" + newId + ".png",
-                        Body: req.file.buffer,
-                        ContentType: 'image/png', 
-                        ACL: 'public-read',
-                    };
-                    try {
-                        const data = await s3.upload(params).promise();
-                        const newShape = new Shape({
-                          id: newId,
-                          title: req.file.originalname.substring(0, req.file.originalname.lastIndexOf('.')),
-                          category_id: req.body.category_id,
-                          src: new URL(data.Location).pathname,
-                        });
-                        await newShape.save();
-                        var addedShape = await Shape.find({ _id: newShape._id }, { _id:0, __v: 0 });
-                        res.json({ status: true, message: 'Shape Added Successfully', statusCode: 200, data: addedShape[0] });
-                    } catch (error) {
-                        console.error(error);
-                        res.status(500).json({ status: false,statusCode: 500, message: 'An error occurred during shape upload.' });
+router.post("/add", middleware, upload.array('images'), async function(req, res) {
+    jwt.verify(req.token, process.env.secret, async (err, authData) => {
+        try {
+            if (err) {
+                res.json({ status: false, message: err.message, statusCode: 403 });
+            } else {
+                if (authData.user[0].is_admin) {
+                    const total = await Shape.countDocuments();
+                    if (total > 0) {
+                        const lastDocument = await Shape.findOne({}, {}, { sort: { id: -1 } });
+                        var newId = lastDocument.id;
+                    } else {
+                        var newId = 0;
                     }
+                    newId++;
+
+                    // Process each uploaded file
+                    const uploadedShapes = [];
+                    for (const file of req.files) {
+                        var shape = await Shape.find({ id: newId });
+                        if (shape.length > 0) {
+                            res.json({ status: false, message: "Already Exist", statusCode: 404 });
+                            return; // Exit the loop and the function
+                        }
+                        const params = {
+                            Bucket: 'posters-assets',
+                            Key: "assets/shapes/" + newId + ".png",
+                            Body: file.buffer,
+                            ContentType: file.mimetype,
+                            ACL: 'public-read',
+                        };
+                        try {
+                            const data = await s3.upload(params).promise();
+                            const newShape = new Shape({
+                                id: newId,
+                                title: file.originalname.substring(0, file.originalname.lastIndexOf('.')),
+                                category_id: req.body.category_id,
+                                src: new URL(data.Location).pathname,
+                            });
+                            await newShape.save();
+                            var addedShape = await Shape.find({ _id: newShape._id }, { _id: 0, __v: 0 });
+                            uploadedShapes.push(addedShape[0]);
+                            newId++;
+                        } catch (error) {
+                            console.error(error);
+                            res.status(500).json({ status: false, statusCode: 500, message: 'An error occurred during shape upload.' });
+                            return; // Exit the loop and the function
+                        }
+                    }
+                    res.json({ status: true, message: 'Shapes Added Successfully', statusCode: 200, data: uploadedShapes });
+                } else {
+                    res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
                 }
-            }else{
-                res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
-        }} catch (error) {
+        } catch (error) {
             console.error(error);
-            res.status(200).json({ status: false,statusCode: 500, message: error.message });
+            res.status(200).json({ status: false, statusCode: 500, message: error.message });
         }
     });
 });

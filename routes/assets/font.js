@@ -5,40 +5,50 @@ var jwt = require('jsonwebtoken');
 const Font = require('../../models/assets/font');
 const middleware = require('../../middleware/auth_middleware');
 
-router.post("/add", middleware , async function(req, res) {
-    jwt.verify(req.token, process.env.secret, async (err,authData) => {
-        try{
-        if(err) {
-            res.json({ status: false, message: err.message, statusCode: 403 });
-        }else {
-            if(authData.user[0].is_admin){
-                const total = await Font.countDocuments();
-                if(total > 0){
-                    const lastDocument = await Font.findOne({}, {}, { sort: { id: -1 } });
-                    var newId = lastDocument.id;
-                }else{
-                    var newId = 0;
+router.post("/add", middleware, async function(req, res) {
+    jwt.verify(req.token, process.env.secret, async (err, authData) => {
+        try {
+            if (err) {
+                res.json({ status: false, message: err.message, statusCode: 403 });
+            } else {
+                if (authData.user[0].is_admin) {
+                    const fontsToAdd = req.body.fonts; // Assuming the request body contains an array of fonts to add
+                    const addedFonts = [];
+
+                    for (const fontData of fontsToAdd) {
+                        const total = await Font.countDocuments();
+                        if (total > 0) {
+                            const lastDocument = await Font.findOne({}, {}, { sort: { id: -1 } });
+                            var newId = lastDocument.id;
+                        } else {
+                            var newId = 0;
+                        }
+                        newId++;
+
+                        var font = await Font.find({ id: newId });
+                        if (font.length > 0) {
+                            res.json({ status: false, message: "Already Exist", statusCode: 404 });
+                            return; // Exit the loop and the function
+                        }
+
+                        const newFont = new Font({
+                            id: newId,
+                            title: fontData.title,
+                            src: fontData.src,
+                        });
+                        await newFont.save();
+                        var addedFont = await Font.find({ _id: newFont._id }, { _id: 0, __v: 0 });
+                        addedFonts.push(addedFont[0]);
+                    }
+
+                    res.json({ status: true, message: "Fonts Added Successfully", statusCode: 200, data: addedFonts });
+                } else {
+                    res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
                 }
-                newId++;
-                var font = await Font.find({id: newId});
-                if(font.length > 0){
-                    res.json({ status: false, message: "Already Exist", statusCode: 404});
-                }else{
-                    const newFont = new Font({
-                        id: newId,
-                        title: req.body.title,
-                        src: req.body.src,
-                    });
-                    await newFont.save();
-                    var addedFont = await Font.find({_id: newFont._id}, { _id:0, __v:0 });
-                    res.json({ status: true, message: "Font Added Successfully", statusCode: 200 , data: addedFont[0] });
-                }
-            }else{
-                res.json({ status: false, message: "Only Admin Can Access", statusCode: 400 });
             }
-        }} catch (error) {
+        } catch (error) {
             console.error(error);
-            res.status(200).json({ status: false,statusCode: 500, message: error.message });
+            res.status(200).json({ status: false, statusCode: 500, message: error.message });
         }
     });
 });
