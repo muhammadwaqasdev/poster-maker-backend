@@ -47,7 +47,7 @@ router.post("/add", middleware, upload.array('images'), async function(req, res)
                             const data = await s3.upload(params).promise();
                             const newBackground = new Background({
                                 id: newId,
-                                title: file.originalname.substring(0, file.originalname.lastIndexOf('.')),
+                                title: newId,
                                 category_id: req.body.category_id,
                                 src: new URL(data.Location).pathname,
                             });
@@ -57,7 +57,7 @@ router.post("/add", middleware, upload.array('images'), async function(req, res)
                             newId++;
                         } catch (error) {
                             console.error(error);
-                            res.status(500).json({ status: false, statusCode: 500, message: 'An error occurred during background upload.' });
+                            res.status(500).json({ status: false, statusCode: 500, message: error });
                             return; // Exit the loop and the function
                         }
                     }

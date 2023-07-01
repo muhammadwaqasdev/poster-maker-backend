@@ -12,7 +12,7 @@ router.post("/add", middleware, async function(req, res) {
                 res.json({ status: false, message: err.message, statusCode: 403 });
             } else {
                 if (authData.user[0].is_admin) {
-                    const fancyFontsToAdd = req.body.fancyFonts; // Assuming the request body contains an array of fancy fonts to add
+                    const fancyFontsToAdd = req.body.fonts; // Assuming the request body contains an array of fancy fonts to add
                     const addedFancyFonts = [];
 
                     for (const fancyFontData of fancyFontsToAdd) {

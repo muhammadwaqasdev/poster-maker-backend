@@ -47,7 +47,7 @@ router.post("/add", middleware, upload.array('images'), async function(req, res)
                             const data = await s3.upload(params).promise();
                             const newShape = new Shape({
                                 id: newId,
-                                title: file.originalname.substring(0, file.originalname.lastIndexOf('.')),
+                                title: newId,
                                 category_id: req.body.category_id,
                                 src: new URL(data.Location).pathname,
                             });
