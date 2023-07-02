@@ -1,6 +1,7 @@
 //initailization Express Server
 const express = require('express');
 const moment = require('moment');
+const cors = require("cors");
 const app = express();
 const connectDB = require('./db');
 
@@ -9,6 +10,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' })); 
 
+app.use(cors());
 
 //decleared api routes
 const user = require('./models/user');
