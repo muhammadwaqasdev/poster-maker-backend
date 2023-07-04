@@ -69,7 +69,7 @@ router.get("/getAllAdmin", async function(req, res) {
     
     try {
     const skip = (page - 1) * limit;
-    const design = await Design.find({user_id: "649aa1533702a370c18abd7f"}, { __v: 0 })
+    const design = await Design.find({user_id: "649c36445e1886189629a143"}, { __v: 0 })
         .skip(skip)
         .limit(limit);
     const totalCount = await Design.countDocuments();
