@@ -3,6 +3,7 @@ const router = express.Router();
 var jwt = require('jsonwebtoken');
 const s3 = require('../../s3');
 
+const ShapesCategory = require('../../models/catogories/shapes_category');
 const Shape = require('../../models/assets/shape');
 const middleware = require('../../middleware/auth_middleware');
 const multer = require('multer');
@@ -45,10 +46,12 @@ router.post("/add", middleware, upload.array('images'), async function(req, res)
                         };
                         try {
                             const data = await s3.upload(params).promise();
+                            const shap = await ShapesCategory.find({ _id: req.body.category_id });
                             const newShape = new Shape({
                                 id: newId,
                                 title: newId,
                                 category_id: req.body.category_id,
+                                category: shap[0],
                                 src: new URL(data.Location).pathname,
                             });
                             await newShape.save();
@@ -122,9 +125,11 @@ router.patch("/update/:id", middleware, upload.single('image'), function(req, re
                 
                 try {
                     const data = await s3.upload(params).promise();
+                    const shap = await ShapesCategory.find({ _id: req.body.category_id });
                     const updatedShape = await Shape.findOneAndUpdate({id: req.params.id},
                         {
                             category_id: req.body.category_id,
+                            category: shap[0],
                             title: req.file.originalname.substring(0, req.file.originalname.lastIndexOf('.')),
                             src: new URL(data.Location).pathname,
                         },

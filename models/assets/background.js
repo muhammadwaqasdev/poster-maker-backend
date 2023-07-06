@@ -13,6 +13,24 @@ const backgroundSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    category: {
+        name: {
+            type: String,
+            required: true,
+        },
+        icon: {
+            type: String,
+            required: true,
+        },
+        created_on: {
+            type: Date,
+            default: Date.now,
+        },
+        updated_on: {
+            type: Date,
+            default: Date.now,
+        },
+    },
     title: {
         type: String,
         required: true,

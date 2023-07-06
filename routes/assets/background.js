@@ -3,6 +3,7 @@ const router = express.Router();
 var jwt = require('jsonwebtoken');
 const s3 = require('../../s3');
 
+const BackgroundCategory = require('../../models/catogories/backgrounds_category');
 const Background = require('../../models/assets/background');
 const middleware = require('../../middleware/auth_middleware');
 const multer = require('multer');
@@ -45,14 +46,18 @@ router.post("/add", middleware, upload.array('images'), async function(req, res)
                         };
                         try {
                             const data = await s3.upload(params).promise();
+                            const cat = await BackgroundCategory.find({ _id: req.body.category_id });
                             const newBackground = new Background({
                                 id: newId,
                                 title: newId,
                                 category_id: req.body.category_id,
+                                category: cat[0],
                                 src: new URL(data.Location).pathname,
                             });
+                            console.log(newBackground);
                             await newBackground.save();
                             var addedBackground = await Background.find({ _id: newBackground._id }, { _id: 0, __v: 0 });
+                            console.log(addedBackground);
                             uploadedFiles.push(addedBackground[0]);
                             newId++;
                         } catch (error) {
@@ -122,9 +127,11 @@ router.patch("/update/:id", middleware, upload.single('image'), function(req, re
                 
                 try {
                     const data = await s3.upload(params).promise();
+                    const cat = await BackgroundCategory.find({ _id: req.body.category_id });
                     const updatedBackground = await Background.findOneAndUpdate({id: req.params.id},
                         {
                             category_id: req.body.category_id,
+                            category: cat[0],
                             title: req.file.originalname.substring(0, req.file.originalname.lastIndexOf('.')),
                             src: new URL(data.Location).pathname,
                         },
