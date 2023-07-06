@@ -54,7 +54,6 @@ router.post("/add", middleware, upload.array('images'), async function(req, res)
                                 category: cat[0],
                                 src: new URL(data.Location).pathname,
                             });
-                            console.log(newBackground);
                             await newBackground.save();
                             var addedBackground = await Background.find({ _id: newBackground._id }, { _id: 0, __v: 0 });
                             console.log(addedBackground);
@@ -79,23 +78,38 @@ router.post("/add", middleware, upload.array('images'), async function(req, res)
 });
 
 router.get("/getAll", async function(req, res) {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 1000;
-  
-    try {
-      const skip = (page - 1) * limit;
-      const background = await Background.find({}, { _id:0,__v: 0 })
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 1000;
+
+  try {
+    const skip = (page - 1) * limit;
+    const categories = await Background.distinct("category_id"); // Get distinct category_ids
+    const background = [];
+    
+    for (const category of categories) {
+      const categoryBackgrounds = await Background.find({ category_id: category }, { _id: 0, __v: 0 })
         .skip(skip)
         .limit(limit);
-      const totalCount = await Background.countDocuments();
-  
-      res.json({
-        status: true, message: "Success", statusCode: 200, data: background, length: background.length, page: page, totalPages: Math.ceil(totalCount / limit)
-      });
-    } catch (error) {
-      res.json({status: false, message: error.message, statusCode: 500});
+      
+      background.push(...categoryBackgrounds.slice(0, limit)); // Push 10 entries of the category to the result array
     }
-  });
+    
+    const totalCount = background.length;
+
+    res.json({
+      status: true,
+      message: "Success",
+      statusCode: 200,
+      data: background,
+      length: totalCount,
+      page: page,
+      totalPages: Math.ceil(totalCount / limit)
+    });
+  } catch (error) {
+    res.json({ status: false, message: error.message, statusCode: 500 });
+  }
+});
+
 
 router.get("/get/:id", async function(req, res) {
     try{

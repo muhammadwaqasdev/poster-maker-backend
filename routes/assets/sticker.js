@@ -82,16 +82,30 @@ router.get("/getAll", async function(req, res) {
   
     try {
       const skip = (page - 1) * limit;
-      const sticker = await Sticker.find({}, { _id:0,__v: 0 })
-        .skip(skip)
-        .limit(limit);
-      const totalCount = await Sticker.countDocuments();
+      const categories = await Sticker.distinct("category_id"); // Get distinct category_ids
+      const sticker = [];
+      
+      for (const category of categories) {
+        const categoryStickers = await Sticker.find({ category_id: category }, { _id: 0, __v: 0 })
+          .skip(skip)
+          .limit(limit);
+        
+        sticker.push(...categoryStickers.slice(0, limit)); // Push 10 entries of the category to the result array
+      }
+      
+      const totalCount = sticker.length;
   
       res.json({
-        status: true, message: "Success", statusCode: 200, data: sticker, length: sticker.length, page: page, totalPages: Math.ceil(totalCount / limit)
+        status: true,
+        message: "Success",
+        statusCode: 200,
+        data: sticker,
+        length: totalCount,
+        page: page,
+        totalPages: Math.ceil(totalCount / limit)
       });
     } catch (error) {
-      res.json({status: false, message: error.message, statusCode: 500});
+      res.json({ status: false, message: error.message, statusCode: 500 });
     }
   });
 

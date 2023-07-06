@@ -82,16 +82,30 @@ router.get("/getAll", async function(req, res) {
   
     try {
       const skip = (page - 1) * limit;
-      const shape = await Shape.find({}, { _id:0,__v: 0 })
-        .skip(skip)
-        .limit(limit);
-      const totalCount = await Shape.countDocuments();
+      const categories = await Shape.distinct("category_id"); // Get distinct category_ids
+      const shape = [];
+      
+      for (const category of categories) {
+        const categoryShapes = await Shape.find({ category_id: category }, { _id: 0, __v: 0 })
+          .skip(skip)
+          .limit(limit);
+        
+        shape.push(...categoryShapes.slice(0, limit)); // Push 10 entries of the category to the result array
+      }
+      
+      const totalCount = shape.length;
   
       res.json({
-        status: true, message: "Success", statusCode: 200, data: shape, length: shape.length, page: page, totalPages: Math.ceil(totalCount / limit)
+        status: true,
+        message: "Success",
+        statusCode: 200,
+        data: shape,
+        length: totalCount,
+        page: page,
+        totalPages: Math.ceil(totalCount / limit)
       });
     } catch (error) {
-      res.json({status: false, message: error.message, statusCode: 500});
+      res.json({ status: false, message: error.message, statusCode: 500 });
     }
   });
 
