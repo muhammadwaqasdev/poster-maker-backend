@@ -88,11 +88,11 @@ router.get("/getMyAll", middleware, async function(req, res) {
     
     try {
       const skip = (page - 1) * limit;
-      const categories = await Design.distinct("category_id"); // Get distinct category_ids
+      const categories = await Design.distinct("category_id", { user_id: "64a9b1217c55a767c6476d10" }); // Get distinct category_ids
       const design = [];
       
       for (const category of categories) {
-        const categoryDesigns = await Design.find({ category_id: category }, { __v: 0 })
+        const categoryDesigns = await Design.find({ category_id: category, user_id: "64a9b1217c55a767c6476d10"}, { __v: 0 })
           .skip(skip)
           .limit(limit);
         
