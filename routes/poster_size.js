@@ -1,11 +1,18 @@
 const express = require('express');
 const router = express.Router();
 var jwt = require('jsonwebtoken');
+const s3 = require('../s3');
 
 const PosterSize = require('../models/poster_sizes');
 const middleware = require('../middleware/auth_middleware');
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ 
+    storage,
+    limits: { fieldSize: 2 * 1024 * 1024 }
+});
 
-router.post("/add", middleware , async function(req, res) {
+router.post("/add", middleware , upload.single('file'), async function(req, res) {
     jwt.verify(req.token, process.env.secret, async (err,authData) => {
         try{
         if(err) {
@@ -16,11 +23,20 @@ router.post("/add", middleware , async function(req, res) {
                 if(posterSize.length > 0){
                     res.json({ status: false, message: "Already Exist", statusCode: 404});
                 }else{
+                    const params = {
+                        Bucket: 'poster-assets',
+                        Key: "postersizesicon/" + req.body.name + ".png",
+                        Body: req.file.buffer,
+                        ContentType: 'image/png', 
+                        ACL: 'public-read',
+                    };
+                    const data = await s3.upload(params).promise();
                     const newPosterSize = new PosterSize({
                         name: req.body.name,
                         aspectRatio: req.body.aspectRatio,
                         height: req.body.height,
-                        width: req.body.width
+                        width: req.body.width,
+                        icon: new URL(data.Location).pathname
                     });
                     await newPosterSize.save();
                     var addedPosterSize = await PosterSize.find({_id: newPosterSize._id}, {__v:0 });

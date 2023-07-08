@@ -38,7 +38,7 @@ router.post("/add", middleware, upload.array('images'), async function(req, res)
                             return; // Exit the loop and the function
                         }
                         const params = {
-                            Bucket: 'posters-assets',
+                            Bucket: 'poster-assets',
                             Key: "assets/background/" + newId + ".png",
                             Body: file.buffer,
                             ContentType: file.mimetype,
@@ -132,7 +132,7 @@ router.patch("/update/:id", middleware, upload.single('image'), function(req, re
         }else {
             if(authData.user[0].is_admin){
                 const params = {
-                    Bucket: 'posters-assets',
+                    Bucket: 'poster-assets',
                     Key: "assets/background/" + req.params.id + ".png",
                     Body: req.file.buffer,
                     ContentType: 'image/png', 

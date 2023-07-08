@@ -24,7 +24,7 @@ router.post("/add", middleware, upload.single('icon'), async function(req, res) 
                     res.json({ status: false, message: "Already Exist", statusCode: 404});
                 }else{
                     const params = {
-                        Bucket: 'posters-assets',
+                        Bucket: 'poster-assets',
                         Key: "category/background/" + req.body.name + ".png",
                         Body: req.file.buffer,
                         ContentType: 'image/png', 
@@ -95,7 +95,7 @@ router.patch("/update/:id", middleware, upload.single('icon'), function(req, res
         }else {
             if(authData.user[0].is_admin){
                 const params = {
-                    Bucket: 'posters-assets',
+                    Bucket: 'poster-assets',
                     Key: "category/background/" + req.body.name + ".png",
                     Body: req.file.buffer,
                     ContentType: 'image/png', 
